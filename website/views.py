@@ -1,10 +1,11 @@
 from flask.views import View
 from . import db
+from .models import UploadData
 
 class ListView(View):
     methods = ['GET']
 
     def dispatch_request(self):
-        return super().dispatch_request()
-
-
+        val = db.session.query(UploadData).first()
+        print(val.hash)
+        return ""
