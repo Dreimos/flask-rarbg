@@ -12,13 +12,11 @@ def create_app():
     db.init_app(app)
     app.app_context().push()
 
-    from .views import ListView
-
+    from .views import ListView, DetailView
+    
+    # TODO: set up url paths
     app.add_url_rule("/", view_func=ListView.as_view('list_view'))
+    app.add_url_rule("/<int:id>", view_func=DetailView.as_view('upload_detail'))
 
     return app
 
-def create_db(app):
-    if not path.exists('instance/' + DB_NAME):
-        with app.app_context(): 
-            db.create_all()

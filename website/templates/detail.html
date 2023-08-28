@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+<!--TODO: change title something more personalized-->
+{% block title %}Upload Detail{% endblock title %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <!-- TODO:change href links accordingly -->
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">{{ table_data['category'] }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ table_data['title'] }}</li>
+    </ol>
+<!--IMDb data if any present-->
+    {% if imdb_data != None %}
+        <div class="card">
+            <div class="row">
+                <div class="col-md-auto" style='padding-right: 0;'>
+                    <img src="{{ imdb_data['Poster'] }}" class="img-fluid rounded-start">
+                </div>
+                <div class="col" style='padding-left: 0;'>
+                    <div class="card-header d-flex justify-content-between">
+                        <span><h5 class="card-title">{{ imdb_data['Title'] }}</h5></span>
+                        <span>IMDb rating: {{ imdb_data['Ratings'][0]['Value'] }}</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ imdb_data['Plot'] }}</p>
+                    </div>
+                    <table class='table'>
+                        <tbody>
+                            <tr>
+                                <th>Director</th>
+                                <td>{{ imdb_data['Director'] }}</td>
+                            </tr>
+                            <tr>
+                                <th>Writers</th>
+                                <td>{{ imdb_data['Writer'] }}</td>
+                            </tr>
+                            <tr>
+                                <th>Stars</th>
+                                <td>{{ imdb_data['Actors'] }}</td>
+                            </tr>
+                            <tr>
+                                <th>Genre</th>
+                                <td>{{ imdb_data['Genre'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <br>
+    <!--File upload link-->
+    <div class="card">
+        <div class="card-header">
+            <h6 class="card-title">{{ table_data['title'] }}</h6>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">File size: {{ (table_data['size'] / 1024**3) | round(2) }} GB</li>
+                <li class="list-group-item"><a href="magnet:?xt=urn:btih:{{ table_data['hash'] }}">🧲 Magnet link</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock content %}
