@@ -57,7 +57,11 @@
         </div>
         <div class="card-body">
             <ul class="list-group list-group-flush">
+                {% if table_data['size'] != None %}
                 <li class="list-group-item">File size: {{ (table_data['size'] / 1024**3) | round(2) }} GB</li>
+                {% else %}
+                <li class="list-group-item">File size: N/A</li>
+                {% endif %}
                 <li class="list-group-item"><a href="magnet:?xt=urn:btih:{{ table_data['hash'] }}">🧲 Magnet link</a></li>
             </ul>
         </div>
