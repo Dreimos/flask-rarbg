@@ -19,3 +19,4 @@ UploadData = Base.classes.test_table
 # main table
 # UploadData = Base.classes.upload_data
 
+Categories = Base.classes.categories
