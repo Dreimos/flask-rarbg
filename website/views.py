@@ -1,7 +1,9 @@
 from flask.views import MethodView
-from flask import render_template, abort
+from flask import render_template, abort, request, redirect, url_for
+from sqlalchemy import text, func
 
 import requests
+import re
 
 from . import db
 from .models import UploadData, Categories
@@ -40,6 +42,7 @@ class ListView(MethodView):
         table_data, page_num = self.fetch_data(cur_page)
         return render_template(self.template, table_data=table_data, page=cur_page, page_num=page_num)
 
+
 class CategoryListView(ListView):
     def _get_query(self):
         return db.session.query(self.model).filter_by(cat=self.cat) 
@@ -56,6 +59,26 @@ class CategoryListView(ListView):
             abort(404)
         return super().get(page_num)
 
+
+class SearchListView(CategoryListView):
+    def _breakdown_into_keywords(self, text):
+        separators = r'[,\s=;*\\]+'
+        return {f"%{word}%" for word in re.split(separators, text)}
+    
+    def _get_query(self):
+        if self.cat is None:
+            filtered = db.session.query(self.model)
+        else:
+            filtered = db.session.query(self.model).filter_by(cat=self.cat)
+        for key in self.keywords:
+            filtered = filtered.filter(self.model.title.like(key))
+        return filtered
+    
+    def get(self, search_query=None, cat=None, page_num=1):
+        search_query = request.args.get('search_query') if search_query is None else search_query
+        self.keywords = self._breakdown_into_keywords(search_query)
+        self.cat = cat
+        return super(CategoryListView, self).get(page_num)
 
 class DetailView(MethodView):
     init_every_request = False
