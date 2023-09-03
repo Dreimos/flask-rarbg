@@ -10,6 +10,8 @@
         <li class="breadcrumb-item"><a href="#">{{ table_data['category'] }}</a></li>
         <li class="breadcrumb-item active" aria-current="page">{{ table_data['title'] }}</li>
     </ol>
+</nav>
+
 <!--IMDb data if any present-->
     {% if imdb_data != None %}
         <div class="card">
@@ -20,7 +22,10 @@
                 <div class="col" style='padding-left: 0;'>
                     <div class="card-header d-flex justify-content-between">
                         <span><h5 class="card-title">{{ imdb_data['Title'] }}</h5></span>
+                        {% if imdb_data['Ratings']|length %}
                         <span>IMDb rating: {{ imdb_data['Ratings'][0]['Value'] }}</span>
+                        {% endif %}
+                        
                     </div>
                     <div class="card-body">
                         <p class="card-text">{{ imdb_data['Plot'] }}</p>
@@ -66,5 +71,4 @@
             </ul>
         </div>
     </div>
-</nav>
 {% endblock content %}
