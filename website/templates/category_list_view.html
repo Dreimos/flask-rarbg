@@ -1,49 +1,30 @@
-{% extends 'list_view.html' %}
+{% extends "list_base.html" %}
 
-{% block pagination %}
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <!-- TODO:change href links accordingly -->
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ request.view_args.cat }}</li>
+    </ol>
+</nav>
+{% endblock breadcrumb %}
+
 {% set view = 'category_list' %}
-<a class="page-link {% if page == 1 %}disabled{% endif %}" href="{{ url_for(view, cat=request.view_args.cat, page_num=page-1) }}" aria-label="Previous">
-    <span aria-hidden="true">&laquo;</span>
-</a>
-{% if page_num < 11 %}
-{% for i in range(1, page_num + 1) %}
-<li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ url_for(view, cat=request.view_args.cat, page_num=i) }}">{{ i }}</a></li>
-{% endfor %}
-{% else %}
-{% if page < 4 %}
-    {% for i in range(1, 6) %}
-    <li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ url_for(view, cat=request.view_args.cat, page_num=i) }}">{{ i }}</a></li>
-    {% endfor %}
-    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-    {% for i in range(page_num - 4, page_num + 1) %}
-    <li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ url_for(view, cat=request.view_args.cat, page_num=i) }}">{{ i }}</a></li>
-    {% endfor %}
-{% elif page > 4 and page < page_num - 3 %}
-    {% for i in range(1, 3) %}
-    <li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ url_for(view, cat=request.view_args.cat, page_num=i) }}">{{ i }}</a></li>
-    {% endfor %}
-    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-    {% for i in range(page - 2, page + 3) %}
-    <li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ url_for(view, cat=request.view_args.cat, page_num=i) }}">{{ i }}</a></li>
-    {% endfor %}
-    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-    {% for i in range(page_num - 1, page_num + 1) %}
-    <li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ url_for(view, cat=request.view_args.cat, page_num=i) }}">{{ i }}</a></li>
-    {% endfor %}
-{% else %}
-    {% for i in range(1, 6) %}
-    <li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ url_for(view, cat=request.view_args.cat, page_num=i) }}">{{ i }}</a></li>
-    {% endfor %}
-    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-    {% for i in range(page_num - 4, page_num + 1) %}
-    <li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ url_for(view, cat=request.view_args.cat, page_num=i) }}">{{ i }}</a></li>
-    {% endfor %}
-{% endif %}
-{% endif %}
-<li class="page-item">
-<a class="page-link {% if page == page_num %}disabled{% endif %}" href="{{ url_for(view, cat=request.view_args.cat, page_num=page+1) }}" aria-label="Next">
-    <span aria-hidden="true">&raquo;</span>
-</a>
-</li>
-{% endblock pagination %}
+{% block pagination_prev %}
+{{ url_for(view, cat=request.view_args.cat, page_num=page-1) }}
+{% endblock pagination_prev %}
+
+{% block pagination_next %}
+{{ url_for(view, cat=request.view_args.cat, page_num=page+1) }}
+{% endblock pagination_next %}
+
+{% block page1 %}{{ url_for(view, cat=request.view_args.cat, page_num=iter) }}{% endblock %}
+{% block page2 %}{{ url_for(view, cat=request.view_args.cat, page_num=iter) }}{% endblock %}
+{% block page3 %}{{ url_for(view, cat=request.view_args.cat, page_num=iter) }}{% endblock %}
+{% block page4 %}{{ url_for(view, cat=request.view_args.cat, page_num=iter) }}{% endblock %}
+{% block page5 %}{{ url_for(view, cat=request.view_args.cat, page_num=iter) }}{% endblock %}
+{% block page6 %}{{ url_for(view, cat=request.view_args.cat, page_num=iter) }}{% endblock %}
+{% block page7 %}{{ url_for(view, cat=request.view_args.cat, page_num=iter) }}{% endblock %}
+{% block page8 %}{{ url_for(view, cat=request.view_args.cat, page_num=iter) }}{% endblock %}
 
