@@ -1,4 +1,7 @@
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy import text
+from sqlalchemy.engine.reflection import Inspector
+
 from . import db
 
 Base = automap_base()
@@ -14,9 +17,5 @@ cat - categories
 size - upload size in bytes
 imdb - imdb page (Nullable)
 """
-# development table
-UploadData = Base.classes.test_table
-# main table
-# UploadData = Base.classes.upload_data
-
+UploadData = Base.classes.upload_data
 Categories = Base.classes.categories

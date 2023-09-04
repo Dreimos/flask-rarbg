@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.engine.reflection import Inspector
+from sqlalchemy import text
 
 from .config import SECRET_KEY, SQLALCHEMY_DATABASE_URI
 
@@ -10,6 +12,7 @@ def create_app():
     app.config['SECRET_KEY'] = SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
     db.init_app(app)
+    alter_table(app)
     app.app_context().push()
 
     from .views import ListView, DetailView, CategoryListView, SearchListView
@@ -24,3 +27,13 @@ def create_app():
 
     return app
 
+def alter_table(app):
+    with app.app_context():
+        # The original 'items' name of the table conflicts with SQLAlchemy, so I renamed it.
+        if Inspector.from_engine(db.engine).has_table('items'):
+            db.session.execute(text("ALTER TABLE items RENAME TO upload_data"))
+        # The database is not normalized, so for some functionality I had to create a categories table
+        if not Inspector.from_engine(db.engine).has_table('categories'):
+            db.session.execute(text("CREATE TABLE categories (cat TEXT UNIQUE, PRIMARY KEY (cat))"))
+            db.session.execute(text("INSERT INTO categories SELECT DISTINCT cat FROM upload_data"))
+            db.session.commit()
