@@ -1,6 +1,5 @@
 from flask.views import MethodView
-from flask import render_template, abort, request, redirect, url_for
-from sqlalchemy import text, func
+from flask import render_template, abort, request
 
 import requests
 import re
