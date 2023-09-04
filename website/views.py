@@ -9,7 +9,11 @@ from . import db
 from .models import UploadData, Categories
 from .config import OMDB_API_KEY
 
-class ListView(MethodView):
+class CategoryFetcher:
+    def fetch_all_categories(self):
+        return db.session.query(Categories).all()
+
+class ListView(MethodView, CategoryFetcher):
     init_every_request = False
     items_per_page = 40
 
@@ -38,9 +42,10 @@ class ListView(MethodView):
         return page_entries, output.pages
 
     def get(self, page_num=None):
+        category_list = self.fetch_all_categories()
         cur_page = page_num if page_num is not None else 1
         table_data, page_num = self.fetch_data(cur_page)
-        return render_template(self.template, table_data=table_data, page=cur_page, page_num=page_num)
+        return render_template(self.template, category_list=category_list, table_data=table_data, page=cur_page, page_num=page_num)
 
 
 class CategoryListView(ListView):
@@ -80,7 +85,7 @@ class SearchListView(CategoryListView):
         self.cat = cat
         return super(CategoryListView, self).get(page_num)
 
-class DetailView(MethodView):
+class DetailView(MethodView, CategoryFetcher):
     init_every_request = False
 
     def __init__(self) -> None:
@@ -118,11 +123,12 @@ class DetailView(MethodView):
 
 
     def get(self, id):
+        category_list = self.fetch_all_categories()
         item = self._get_item(id)
         table_data = self._to_dict(item)
         if table_data['imdb'] is not None:
             imdb_data = self._fetch_imdb(table_data['imdb'])
         else:
             imdb_data = None
-        return render_template("detail.html", table_data=table_data, imdb_data=imdb_data)
+        return render_template("detail.html", category_list=category_list, table_data=table_data, imdb_data=imdb_data)
 

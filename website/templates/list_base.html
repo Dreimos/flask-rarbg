@@ -6,12 +6,6 @@
     {% block breadcrumb %}
     
     {% endblock breadcrumb %}
-    
-    
-    <form method='GET' action="{{ url_for('search_list') }}">
-        <input type="text" name="search_query" value="{{ request.form['search_query'] }}" placeholder="search" required></input>
-        <button type="submit">🔍</button>
-    </form>
 
     <div>
         <table class='table'>
