@@ -125,7 +125,7 @@ class DetailView(MethodView, CategoryFetcher):
         category_list = self.fetch_all_categories()
         item = self._get_item(id)
         table_data = self._to_dict(item)
-        if table_data['imdb'] is not None:
+        if table_data['imdb'] is not None and OMDB_API_KEY is not None:
             imdb_data = self._fetch_imdb(table_data['imdb'])
         else:
             imdb_data = None
