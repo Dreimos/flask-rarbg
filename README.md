@@ -28,10 +28,23 @@ Install dependencies
 ```console
 $ pip install -r requirements.txt
 ```
-Run
+
+To run, simply do the following.
 
 
-```python
+```console
 $ python main.py
 ```
 
+###Optional:
+
+If you want to get IMDB data, go to [omdb](https://www.omdbapi.com/) site, get your personal API key and either set a OMDB_API_KEY in your environment or simply go to the website/config.py file, and find the line.
+
+```python
+OMDB_API_KEY = getenv('OMDB_API_KEY')
+```
+Replace the getenv function call with your key, like this:
+
+```python
+OMDB_API_KEY = 'EXAMPLE_OMDB_API_KEY'
+```
