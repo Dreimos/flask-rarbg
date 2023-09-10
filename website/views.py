@@ -66,6 +66,8 @@ class CategoryListView(ListView):
 
 class SearchListView(CategoryListView):
     def _breakdown_into_keywords(self, text):
+        if text is None:
+            return set()
         separators = r'[,\s=;*\\]+'
         return {f"%{word}%" for word in re.split(separators, text)}
     
@@ -105,6 +107,8 @@ class DetailView(MethodView, CategoryFetcher):
         return item_dict
 
     def _fetch_imdb(self, imdb_id):
+        if api_key is None:
+            return None
         url = "http://www.omdbapi.com/"
         params = {
                 'i': imdb_id,
@@ -125,8 +129,8 @@ class DetailView(MethodView, CategoryFetcher):
         category_list = self.fetch_all_categories()
         item = self._get_item(id)
         table_data = self._to_dict(item)
-        if table_data['imdb'] is not None and OMDB_API_KEY is not None:
-            imdb_data = self._fetch_imdb(table_data['imdb'])
+        if table_data['imdb'] is not None:
+            imdb_data = self._fetch_imdb(table_data['imdb'], OMDB_API_KEY)
         else:
             imdb_data = None
         return render_template("detail.html", category_list=category_list, table_data=table_data, imdb_data=imdb_data)
