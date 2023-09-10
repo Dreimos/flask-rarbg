@@ -3,11 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy import text
 
-from .config import SECRET_KEY, SQLALCHEMY_DATABASE_URI
+from website.config import SECRET_KEY, SQLALCHEMY_DATABASE_URI
 
 db = SQLAlchemy()
 
-def create_app():
+def create_app() -> Flask:
     app = Flask(__name__)
     app.config['SECRET_KEY'] = SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
@@ -15,9 +15,8 @@ def create_app():
     alter_table(app)
     app.app_context().push()
 
-    from .views import ListView, DetailView, CategoryListView, SearchListView
-    
-    # TODO: set up url paths
+    from website.views import ListView, DetailView, CategoryListView, SearchListView
+
     app.add_url_rule("/", view_func=ListView.as_view('home', template="list_view.html"))
     app.add_url_rule("/<int:page_num>/", view_func=ListView.as_view('list_view', template="list_view.html"))
     app.add_url_rule("/category/<string:cat>/<int:page_num>/", view_func=CategoryListView.as_view('category_list', template="category_list_view.html"))
@@ -27,7 +26,11 @@ def create_app():
 
     return app
 
-def alter_table(app):
+def alter_table(app: Flask) -> None:
+    """
+    Checks input database and renames it if the name is incompatible.
+    Afterwards checks if there is a category table and creates one if none is found.
+    """
     with app.app_context():
         # The original 'items' name of the table conflicts with SQLAlchemy, so I renamed it.
         if Inspector.from_engine(db.engine).has_table('items'):

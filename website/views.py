@@ -1,3 +1,4 @@
+from __future__ import annotations
 from flask.views import MethodView
 from flask import render_template, abort, request
 
@@ -5,28 +6,34 @@ import requests
 import re
 
 from . import db
-from .models import UploadData, Categories
-from .config import OMDB_API_KEY
+from website.models import UploadData, Categories
+from website.config import OMDB_API_KEY
+
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy.pagination import Pagination
+    from flask_sqlalchemy.query import Query
 
 class CategoryFetcher:
-    def fetch_all_categories(self):
+    def fetch_all_categories(self) -> list:
         return db.session.query(Categories).all()
 
 class ListView(MethodView, CategoryFetcher):
     init_every_request = False
     items_per_page = 40
 
-    def __init__(self, template):
+    def __init__(self, template: str) -> None:
         self.model = UploadData
         self.template = template
 
-    def _get_query(self):
+    def _get_query(self) -> Query:
         return db.session.query(self.model)
 
-    def _get_paginated(self, query, page, per_page):
+    def _get_paginated(self, query: Query, page: int, per_page: int) -> Pagination:
         return query.paginate(page=page, per_page=per_page)
 
-    def _to_dict(self, item):
+    def _to_dict(self, item: UploadData) -> dict[str, str|int]:
         item_dict = {
                 'id': item.id,
                 'title': item.title,
@@ -35,12 +42,12 @@ class ListView(MethodView, CategoryFetcher):
                 }
         return item_dict
     
-    def fetch_data(self, page):
+    def fetch_data(self, page: int) -> tuple[list[dict[str, str|int]], int]:
         output = self._get_paginated(self._get_query(), page, self.items_per_page)
         page_entries = [self._to_dict(item) for item in output]
         return page_entries, output.pages
 
-    def get(self, page_num=None):
+    def get(self, page_num: int|None=None) -> str:
         category_list = self.fetch_all_categories()
         cur_page = page_num if page_num is not None else 1
         table_data, page_num = self.fetch_data(cur_page)
@@ -48,15 +55,15 @@ class ListView(MethodView, CategoryFetcher):
 
 
 class CategoryListView(ListView):
-    def _get_query(self):
+    def _get_query(self) -> Query:
         return db.session.query(self.model).filter_by(cat=self.cat) 
 
-    def _fetch_categories(self):
+    def _fetch_categories(self) -> list[str]:
         categories = db.session.query(Categories).all()
         output = [item.cat for item in categories]
         return(output)
     
-    def get(self, cat=None, page_num=None):
+    def get(self, cat:str|None=None, page_num: int|None=None) -> str:
         if cat is not None and cat in self._fetch_categories():
             self.cat = cat
         else:
@@ -65,13 +72,13 @@ class CategoryListView(ListView):
 
 
 class SearchListView(CategoryListView):
-    def _breakdown_into_keywords(self, text):
+    def _breakdown_into_keywords(self, text: str|None) -> set[str]:
         if text is None:
             return set()
         separators = r'[,\s=;*\\]+'
         return {f"%{word}%" for word in re.split(separators, text)}
     
-    def _get_query(self):
+    def _get_query(self) -> Query:
         if self.cat is None:
             filtered = db.session.query(self.model)
         else:
@@ -80,7 +87,7 @@ class SearchListView(CategoryListView):
             filtered = filtered.filter(self.model.title.like(key))
         return filtered
     
-    def get(self, search_query=None, cat=None, page_num=1):
+    def get(self, search_query:str|None=None, cat: str|None=None, page_num: int=1) -> str:
         search_query = request.args.get('search_query') if search_query is None else search_query
         self.keywords = self._breakdown_into_keywords(search_query)
         self.cat = cat
@@ -92,10 +99,10 @@ class DetailView(MethodView, CategoryFetcher):
     def __init__(self) -> None:
         self.model = UploadData
 
-    def _get_item(self, id):
+    def _get_item(self, id: int) -> UploadData:
         return db.session.query(self.model).get_or_404(id)
 
-    def _to_dict(self, item) -> dict:
+    def _to_dict(self, item: UploadData) -> dict:
         item_dict = {
                     'id': item.id,
                     'hash': item.hash,
@@ -106,26 +113,28 @@ class DetailView(MethodView, CategoryFetcher):
                     }
         return item_dict
 
-    def _fetch_imdb(self, imdb_id):
+    def _fetch_imdb(self, imdb_id: str, api_key: str|None) -> dict[str, Any]|None:
+        """
+        Fetches the imdb data based on an id using OMDB as the API provider.
+        """
         if api_key is None:
             return None
         url = "http://www.omdbapi.com/"
         params = {
                 'i': imdb_id,
                 'plot': 'full',
-                'apikey': OMDB_API_KEY,
+                'apikey': api_key,
                 }
         try:
-            r = requests.get(url=url, params=params)
-            output = r.json()
+            response = requests.get(url=url, params=params)
+            output = response.json()
         except requests.exceptions.RequestException:
-            # TODO: proper handling of request exceptions
-            pass
+            return None
         else:
             return output
 
 
-    def get(self, id):
+    def get(self, id: int) -> str:
         category_list = self.fetch_all_categories()
         item = self._get_item(id)
         table_data = self._to_dict(item)
