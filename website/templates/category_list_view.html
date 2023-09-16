@@ -1,5 +1,9 @@
 {% extends "list_base.html" %}
 
+{% block title %}
+{{ request.view_args.cat }} - RARBG DB viewer
+{% endblock title %}
+
 {% block breadcrumb %}
 <nav aria-label="breadcrumb">
     <!-- TODO:change href links accordingly -->

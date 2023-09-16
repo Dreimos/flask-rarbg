@@ -8,6 +8,10 @@
 {% set query = request.args.get('search_query') %}
 {% endif %}
 
+{% block title %}
+{{ query }} - RARBG DB viewer
+{% endblock title %}
+
 {% block pagination_prev %}
 {{ url_for(view, search_query=query, page_num=page-1) }}
 {% endblock pagination_prev %}
